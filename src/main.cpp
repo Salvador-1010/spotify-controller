@@ -15,16 +15,25 @@ const int D7 = 26;
 
 LiquidCrystal lcd(RS_PIN, E_PIN, D4, D5, D6, D7);
 
+//variables to keep track of time
+int currentSeconds = 0;
+//uses unsigned long to reserve more space for time tracking bc obviously seconds cant be negative
+unsigned long elapsed_millis = 0;
+
 void setup() 
 { 
     //setting up the LCD 
     lcd.begin(16,2);
-    lcd.print("hi there");
 
     //setting up the esp32 to connect to an existing wifi router
     WiFi.mode(WIFI_STA);
     //starts wifi connection
     WiFi.begin(wifi_name, wifi_pass);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        lcd.print("Connecting...");
+    }
 
     //Begins serial communication at 115200 
     Serial.begin(115200);
@@ -35,12 +44,22 @@ void setup()
     //just a little code to make sure ik wifi is up
     if (WiFi.status() == WL_CONNECTED)
     {
-        Serial.println("Wifi Successfully Connected");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Wifi connected!");
+        delay(500);
     }
 }
 
 void loop()
 {
-
-
-}
+    currentSeconds = millis()/1000;
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Elapsed Time:");
+    lcd.setCursor(0,1);
+    //You have to declare the first string as a String type using String() bc by default it is a char pointer so adding an int after it makes C++ think its doing pointer arithmetic
+    //rather than string concatenation
+    lcd.print(currentSeconds + String(" seconds"));
+    delay(1000);
+} 
