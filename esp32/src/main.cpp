@@ -23,8 +23,12 @@ int currentSeconds = 0;
 //uses unsigned long to reserve more space for time tracking bc obviously seconds cant be negative
 unsigned long elapsed_millis = 0;
 
+//setting up for the UDP connection to the helper sever
+WiFiUDP udp;
+IPAddress PC_IP(192,168,1,248);
 void setup() 
 { 
+
     //setting up the LCD 
     lcd.begin(16,2);
 
@@ -68,6 +72,8 @@ void setup()
     Serial.println("Gateway: " + gateway.toString());
     Serial.println("DNS: " + DNS.toString());
 
+    udp.beginPacket(PC_IP, 5005);
+    udp.print(ip.toString());
 }
 
 void loop()
