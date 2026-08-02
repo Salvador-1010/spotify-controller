@@ -3,6 +3,9 @@
 #include <LiquidCrystal.h>
 //imports the confidential file in order to get the wifi name and password
 #include "confidential.h"
+//library to send code uploads over wifi
+#include <ArduinoOTA.h>
+
 
 const int RS_PIN = 27;
 //for now we have R/W pin set to GND since we only plan to write 
@@ -49,10 +52,28 @@ void setup()
         lcd.print("Wifi connected!");
         delay(500);
     }
+
+    //sets up wireless code uploads
+    ArduinoOTA.setHostname("Spotify-Controller");
+    ArduinoOTA.begin();
+
+    //just some practice code to print wifi diagnostic information
+    IPAddress ip = WiFi.localIP();
+    IPAddress subnet = WiFi.subnetMask();
+    IPAddress gateway = WiFi.gatewayIP();
+    IPAddress DNS = WiFi.dnsIP();
+
+    Serial.println("IP Address: " + ip.toString());
+    Serial.println("Subnet: " + subnet.toString());
+    Serial.println("Gateway: " + gateway.toString());
+    Serial.println("DNS: " + DNS.toString());
+
 }
 
 void loop()
 {
+    ArduinoOTA.handle();
+
     currentSeconds = millis()/1000;
     lcd.clear();
     lcd.setCursor(0,0);
