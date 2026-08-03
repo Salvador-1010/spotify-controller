@@ -6,6 +6,10 @@
 //library to send code uploads over wifi
 #include <ArduinoOTA.h>
 
+//libraries to allow HTTP communication
+#include <HTTPClient.h>
+#include <WiFiClientSecure.h>
+
 
 const int RS_PIN = 27;
 //for now we have R/W pin set to GND since we only plan to write 
@@ -26,6 +30,12 @@ unsigned long elapsed_millis = 0;
 //setting up for the UDP connection to the helper sever
 WiFiUDP udp;
 IPAddress PC_IP(192,168,1,248);
+
+//creates the proper objects to help establish an HTTP connection
+HTTPClient http;
+//creates the object to establish a SECURE HTTPS connection
+WiFiClientSecure secureclient;
+
 void setup() 
 { 
 
@@ -41,6 +51,11 @@ void setup()
         delay(500);
         lcd.print("Connecting...");
     }
+
+    //sets up the https connection process
+    //sets the client as insecure for now just so we can do simple test 
+    secureclient.setInsecure();
+    http.begin(secureclient, "https://echo.free.beeceptor.com");
 
     //Begins serial communication at 115200 
     Serial.begin(115200);
@@ -67,13 +82,17 @@ void setup()
     IPAddress gateway = WiFi.gatewayIP();
     IPAddress DNS = WiFi.dnsIP();
 
+    //since serial print does not work while usign OTA connection, we can use UDP to send data to the helper python server
     Serial.println("IP Address: " + ip.toString());
     Serial.println("Subnet: " + subnet.toString());
     Serial.println("Gateway: " + gateway.toString());
     Serial.println("DNS: " + DNS.toString());
 
+    //begins the process of sending a UDP packet to a specifci ip and port
     udp.beginPacket(PC_IP, 5005);
-    udp.print(ip.toString());
+    //writes the data inside of the packet
+    udp.print(http.GET());
+    //finalizes the packet and sends over the data 
     udp.endPacket();
 }
 
