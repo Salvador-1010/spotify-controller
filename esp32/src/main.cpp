@@ -74,6 +74,7 @@ void setup()
 
     udp.beginPacket(PC_IP, 5005);
     udp.print(ip.toString());
+    udp.endPacket();
 }
 
 void loop()
