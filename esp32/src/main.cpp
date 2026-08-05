@@ -5,6 +5,8 @@
 #include "confidential.h"
 //library to send code uploads over wifi
 #include <ArduinoOTA.h>
+//includes the header file with the spotify root certificate
+#include "certificates.h"
 
 //libraries to allow HTTP communication
 #include <HTTPClient.h>
@@ -53,9 +55,9 @@ void setup()
     }
 
     //sets up the https connection process
-    //sets the client as insecure for now just so we can do simple test 
-    secureclient.setInsecure();
-    http.begin(secureclient, "https://echo.free.beeceptor.com");
+    //sets the manually obtained root spotify ca as the certifcate to use for verification 
+    secureclient.setCACert(ISGR_ROOT_X1);
+    http.begin(secureclient, "https://valid-isrgrootx1.letsencrypt.org/");
 
     //Begins serial communication at 115200 
     Serial.begin(115200);
@@ -88,10 +90,16 @@ void setup()
     Serial.println("Gateway: " + gateway.toString());
     Serial.println("DNS: " + DNS.toString());
 
+    String responseBody = "";
+    int httpcode = http.GET();
+    if (httpcode > 0)
+    {
+        responseBody = http.getString();
+    }
     //begins the process of sending a UDP packet to a specifci ip and port
     udp.beginPacket(PC_IP, 5005);
     //writes the data inside of the packet
-    udp.print(http.GET());
+    udp.print(responseBody);
     //finalizes the packet and sends over the data 
     udp.endPacket();
 }

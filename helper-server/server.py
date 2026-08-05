@@ -8,6 +8,6 @@ server.bind(('192.168.1.248', 5005))
 #creates a while true loop to contiously wait for received msgs
 while True:
     #gets back the received data and address of the device that sent it 
-    data, addr = server.recvfrom(1024)
+    data, addr = server.recvfrom(2048)
     #decodes the received data
     print(data.decode(), addr)
